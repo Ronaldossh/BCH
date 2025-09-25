@@ -1,0 +1,51 @@
+# Configuração do GitHub Pages
+title: "Sistema de Banco de Horas"
+description: "Sistema tecnológico para controle de horas trabalhadas com Dark Mode e efeitos laser"
+author: "Desenvolvedor Tecnológico"
+url: "https://username.github.io"
+baseurl: "/banco-de-horas"
+
+# Tema
+theme: minima
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Configurações
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+
+# Exclusões
+exclude:
+  - node_modules/
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - Gemfile
+  - Gemfile.lock
+  - vendor/
+
+# Configurações de build
+safe: true
+incremental: false
+profile: false
+
+# Configurações de servidor local
+host: 127.0.0.1
+port: 4000
+livereload: true
+
+# SEO
+lang: pt-BR
+timezone: America/Sao_Paulo
+
+# Social
+github_username: username
+linkedin_username: username
+
+# Analytics (opcional)
+google_analytics: UA-XXXXXXXX-X

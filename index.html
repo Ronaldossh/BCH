@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Banco de Horas - Tecnológico</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Efeitos Laser */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: -50px;
+            width: 2px;
+            height: 100vh;
+            background: linear-gradient(to bottom, transparent, #00ffff, transparent);
+            animation: laserPulse 3s infinite;
+            z-index: 1;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            right: -50px;
+            width: 2px;
+            height: 100vh;
+            background: linear-gradient(to bottom, transparent, #ff00ff, transparent);
+            animation: laserPulse 3s infinite 1.5s;
+            z-index: 1;
+        }
+
+        @keyframes laserPulse {
+            0%, 100% { opacity: 0; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(50px); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #b0b0b0;
+            margin-bottom: 30px;
+        }
+
+        .systems-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .system-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .system-card:hover {
+            transform: translateY(-10px);
+            border-color: #00ffff;
+            box-shadow: 0 20px 40px rgba(0, 255, 255, 0.2);
+        }
+
+        .system-card.featured {
+            border-color: #ff00ff;
+            background: rgba(255, 0, 255, 0.1);
+        }
+
+        .system-card.featured:hover {
+            border-color: #ff00ff;
+            box-shadow: 0 20px 40px rgba(255, 0, 255, 0.3);
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #00ffff;
+        }
+
+        .card-description {
+            color: #b0b0b0;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .card-features {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .card-features li {
+            color: #ffffff;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .card-features li::before {
+            content: '⚡';
+            position: absolute;
+            left: 0;
+            color: #00ffff;
+        }
+
+        .card-button {
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .card-button:hover {
+            background: linear-gradient(45deg, #0080ff, #00ffff);
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .featured .card-button {
+            background: linear-gradient(45deg, #ff00ff, #ff0080);
+        }
+
+        .featured .card-button:hover {
+            background: linear-gradient(45deg, #ff0080, #ff00ff);
+            box-shadow: 0 10px 20px rgba(255, 0, 255, 0.3);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 30px;
+            border-top: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .footer p {
+            color: #b0b0b0;
+            margin-bottom: 10px;
+        }
+
+        .developer-credit {
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .systems-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .system-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Sistema de Banco de Horas</h1>
+            <p>Controle tecnológico e automatizado de horas trabalhadas</p>
+        </div>
+
+        <div class="systems-grid">
+            <div class="system-card featured">
+                <div class="card-badge">NOVO</div>
+                <h3 class="card-title">Sistema Unificado</h3>
+                <p class="card-description">
+                    Sistema completo com Dark Mode, relatórios detalhados e atualizações automáticas
+                </p>
+                <ul class="card-features">
+                    <li>Dark Mode com efeitos laser</li>
+                    <li>Atualizações automáticas semanais</li>
+                    <li>Relatórios detalhados por funcionário</li>
+                    <li>Controle de pontualidade</li>
+                    <li>Cálculo automático de horas extras</li>
+                    <li>Abas integradas</li>
+                    <li>Exportação CSV</li>
+                    <li>Créditos do desenvolvedor</li>
+                </ul>
+                <a href="banco_horas_unificado.html" class="card-button">Acessar Sistema</a>
+            </div>
+
+            <div class="system-card">
+                <h3 class="card-title">Sistema Automático</h3>
+                <p class="card-description">
+                    Cálculo automático de horas extras e atrasos com interface moderna
+                </p>
+                <ul class="card-features">
+                    <li>Cálculo automático de horas</li>
+                    <li>Interface moderna</li>
+                    <li>Controle de atrasos</li>
+                    <li>Exportação de dados</li>
+                </ul>
+                <a href="banco_horas_automatico.html" class="card-button">Acessar Sistema</a>
+            </div>
+
+            <div class="system-card">
+                <h3 class="card-title">Sistema Completo</h3>
+                <p class="card-description">
+                    Versão completa com todas as funcionalidades e controles avançados
+                </p>
+                <ul class="card-features">
+                    <li>Controles avançados</li>
+                    <li>Múltiplos relatórios</li>
+                    <li>Histórico completo</li>
+                    <li>Configurações personalizadas</li>
+                </ul>
+                <a href="banco_horas_completo.html" class="card-button">Acessar Sistema</a>
+            </div>
+
+            <div class="system-card">
+                <h3 class="card-title">Sistema Simples</h3>
+                <p class="card-description">
+                    Versão simplificada para uso básico e rápido
+                </p>
+                <ul class="card-features">
+                    <li>Interface simplificada</li>
+                    <li>Uso rápido</li>
+                    <li>Funcionalidades essenciais</li>
+                    <li>Ideal para iniciantes</li>
+                </ul>
+                <a href="banco_horas_sistema.html" class="card-button">Acessar Sistema</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>💡 Dica:</strong> Recomendamos o <strong>Sistema Unificado</strong> para a melhor experiência com Dark Mode e recursos avançados.</p>
+            <p class="developer-credit">Desenvolvido com tecnologia avançada</p>
+        </div>
+    </div>
+</body>
+</html>

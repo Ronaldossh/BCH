@@ -1,0 +1,92 @@
+MIT License
+
+Copyright (c) 2025 Sistema de Banco de Horas
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Sobre o Projeto
+
+Este é um sistema tecnológico de controle de banco de horas desenvolvido com:
+- HTML5, CSS3 e JavaScript moderno
+- Dark Mode com efeitos laser
+- Armazenamento local (LocalStorage)
+- Interface responsiva e moderna
+- Compatibilidade com GitHub Pages
+
+## Funcionalidades Principais
+
+✨ **Sistema Unificado** (Recomendado)
+- Dark Mode com efeitos laser tecnológicos
+- Relatórios detalhados por funcionário
+- Atualizações automáticas semanais
+- Controle de pontualidade avançado
+- Cálculo automático de horas extras
+- Exportação de dados em CSV
+- Banco de dados local integrado
+
+🔧 **Outros Sistemas Disponíveis**
+- Sistema Automático: Cálculo automático básico
+- Sistema Completo: Funcionalidades avançadas
+- Sistema Simples: Interface simplificada
+
+## Tecnologias Utilizadas
+
+- **Frontend**: HTML5, CSS3, JavaScript ES6+
+- **Armazenamento**: LocalStorage API
+- **Hospedagem**: GitHub Pages
+- **Design**: Dark Theme com gradientes e animações
+- **Responsividade**: Mobile-first design
+
+## Compatibilidade
+
+- ✅ Chrome 80+
+- ✅ Firefox 75+
+- ✅ Safari 13+
+- ✅ Edge 80+
+- ✅ Dispositivos móveis (iOS/Android)
+
+## Uso Comercial
+
+Este software pode ser usado livremente para fins comerciais, incluindo:
+- Empresas de qualquer porte
+- Consultorias de RH
+- Sistemas de gestão empresarial
+- Integração com outros softwares
+
+## Contribuições
+
+Contribuições são bem-vindas! Por favor:
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature
+3. Commit suas mudanças
+4. Abra um Pull Request
+
+## Suporte
+
+Para suporte técnico ou dúvidas:
+- Abra uma issue no GitHub
+- Consulte a documentação em `/docs`
+- Verifique os exemplos de uso
+
+## Créditos
+
+Desenvolvido com tecnologia avançada e design moderno.
+Inspirado nas melhores práticas de UX/UI e desenvolvimento web.
