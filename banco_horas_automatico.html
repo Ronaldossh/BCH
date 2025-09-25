@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banco de Horas - Detecção Automática</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .rules-info {
+            background: #e8f5e8;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #27ae60;
+        }
+
+        .rules-info h3 {
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+
+        .rules-info ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .rules-info li {
+            margin-bottom: 5px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .rules-info li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: #e9ecef;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-right: 1px solid #dee2e6;
+        }
+
+        .tab:last-child {
+            border-right: none;
+        }
+
+        .tab.active {
+            background: white;
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .tab:hover:not(.active) {
+            background: #f1f3f4;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            min-height: 600px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .calculation-display {
+            background: #fff3cd;
+            border: 2px solid #f39c12;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .calculation-display h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .calc-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 5px 0;
+            border-bottom: 1px solid #f39c12;
+        }
+
+        .calc-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #856404;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .extra-positive {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .extra-negative {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .weekly-summary {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+
+        .weekly-summary h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .filters .form-group {
+            margin-bottom: 0;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border-left: 5px solid;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-color: #27ae60;
+            color: #155724;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border-color: #3498db;
+            color: #0c5460;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #3498db;
+        }
+
+        .card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .stat:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕐 BANCO DE HORAS</h1>
+            <p>Sistema com Detecção Automática de Horas Extras</p>
+        </div>
+
+        <div class="rules-info">
+            <h3>📋 Regras do Sistema</h3>
+            <ul>
+                <li><strong>Horário Padrão:</strong> Entrada 8h - Saída 15h (sem almoço)</li>
+                <li><strong>Hora Extra de Entrada:</strong> Chegada antes das 8h</li>
+                <li><strong>Hora Extra de Saída:</strong> Saída depois das 15h</li>
+                <li><strong>Atraso:</strong> Chegada depois das 8h</li>
+                <li><strong>Cálculo Final:</strong> (Extras Entrada + Extras Saída) - Atrasos</li>
+            </ul>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('painel')">📊 PAINEL</button>
+            <button class="tab" onclick="showTab('lancamentos')">📝 LANÇAMENTOS</button>
+            <button class="tab" onclick="showTab('relatorios')">📈 RELATÓRIOS</button>
+        </div>
+
+        <!-- ABA PAINEL -->
+        <div id="painel" class="tab-content active">
+            <h2>📊 Painel de Controle</h2>
+            
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>👥 Funcionários</h3>
+                    <div id="funcionarios-stats"></div>
+                </div>
+                
+                <div class="card">
+                    <h3>📅 Esta Semana</h3>
+                    <div id="semana-stats"></div>
+                </div>
+                
+                <div class="card">
+                    <h3>⏰ Horas Extras Totais</h3>
+                    <div id="extras-stats"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📋 Resumo por Funcionário</h3>
+                <div class="table-container">
+                    <table id="resumo-table">
+                        <thead>
+                            <tr>
+                                <th>Funcionário</th>
+                                <th>Horas Extras</th>
+                                <th>Atrasos</th>
+                                <th>Saldo Final</th>
+                                <th>Dias Trabalhados</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resumo-tbody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA LANÇAMENTOS -->
+        <div id="lancamentos" class="tab-content">
+            <h2>📝 Lançamentos de Horas</h2>
+            
+            <div class="form-section">
+                <h3>➕ Novo Lançamento</h3>
+                <form id="lancamento-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="funcionario">Funcionário:</label>
+                            <select id="funcionario" required>
+                                <option value="">Selecione...</option>
+                                <option value="RONALDO">RONALDO</option>
+                                <option value="JANAINA">JANAINA</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="data">Data:</label>
+                            <input type="date" id="data" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="entrada">Horário de Entrada:</label>
+                            <input type="time" id="entrada" step="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="saida">Horário de Saída:</label>
+                        <input type="time" id="saida" step="1" required>
+                        </div>
+                    </div>
+                    
+                    <div class="calculation-display" id="calculo-preview" style="display: none;">
+                        <h4>📊 Cálculo Automático</h4>
+                        <div id="calculo-detalhes"></div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <button type="submit" class="btn btn-primary">💾 Salvar Lançamento</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-container">
+                <table id="lancamentos-table">
+                    <thead>
+                        <tr>
+                            <th>Funcionário</th>
+                            <th>Data</th>
+                            <th>Entrada</th>
+                            <th>Saída</th>
+                            <th>Extra Entrada</th>
+                            <th>Extra Saída</th>
+                            <th>Atraso</th>
+                            <th>Saldo Final</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lancamentos-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ABA RELATÓRIOS -->
+        <div id="relatorios" class="tab-content">
+            <h2>📊 Relatórios Completos</h2>
+            
+            <div class="filters">
+                <div class="form-group">
+                    <label for="filtroFuncionario">Funcionário:</label>
+                    <select id="filtroFuncionario">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filtroDataInicio">Data Início:</label>
+                    <input type="date" id="filtroDataInicio">
+                </div>
+                <div class="form-group">
+                    <label for="filtroDataFim">Data Fim:</label>
+                    <input type="date" id="filtroDataFim">
+                </div>
+                <button class="btn btn-primary" onclick="aplicarFiltros()">🔍 Filtrar</button>
+                <button class="btn btn-success" onclick="exportarRelatorio()">📥 Exportar CSV</button>
+            </div>
+
+            <!-- Seção de Totais Semanais -->
+            <div class="weekly-summary">
+                <h3>📅 Resumo Semanal de Horas Extras</h3>
+                <div class="table-container">
+                    <table id="tabelaTotaisSemanais">
+                        <thead>
+                            <tr>
+                                <th>Semana</th>
+                                <th>Funcionário</th>
+                                <th>Horas Extras Entrada</th>
+                                <th>Horas Extras Saída</th>
+                                <th>Total Atrasos</th>
+                                <th>Saldo Semanal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="totaisSemanaisTbody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>📊 Estatísticas Gerais</h3>
+                    <div id="stats-gerais"></div>
+                </div>
+                
+                <div class="card">
+                    <h3>⏰ Análise de Horários</h3>
+                    <div id="analise-horarios"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📋 Relatório Completo</h3>
+                <div class="table-container">
+                    <table id="relatorio-completo">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Funcionário</th>
+                                <th>Entrada</th>
+                                <th>Saída</th>
+                                <th>Horas Trabalhadas</th>
+                                <th>Extra Entrada</th>
+                                <th>Extra Saída</th>
+                                <th>Atraso</th>
+                                <th>Saldo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="relatorio-tbody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configurações do sistema
+        const HORARIO_ENTRADA_PADRAO = '08:00';
+        const HORARIO_SAIDA_PADRAO = '15:00';
+        
+        // Dados globais
+        let lancamentos = JSON.parse(localStorage.getItem('lancamentos_automatico')) || [];
+        
+        // Funções de cálculo automático
+        function calcularHorasExtras(entrada, saida) {
+            const resultado = {
+                extraEntrada: '00:00',
+                extraSaida: '00:00',
+                atraso: '00:00',
+                saldoFinal: '00:00'
+            };
+            
+            // Converter horários para minutos
+            const entradaMinutos = timeToMinutes(entrada);
+            const saidaMinutos = timeToMinutes(saida);
+            const entradaPadraoMinutos = timeToMinutes(HORARIO_ENTRADA_PADRAO);
+            const saidaPadraoMinutos = timeToMinutes(HORARIO_SAIDA_PADRAO);
+            
+            // Calcular extra de entrada (chegada antes das 8h)
+            if (entradaMinutos < entradaPadraoMinutos) {
+                const extraMinutos = entradaPadraoMinutos - entradaMinutos;
+                resultado.extraEntrada = minutesToTime(extraMinutos);
+            }
+            
+            // Calcular atraso (chegada depois das 8h)
+            if (entradaMinutos > entradaPadraoMinutos) {
+                const atrasoMinutos = entradaMinutos - entradaPadraoMinutos;
+                resultado.atraso = minutesToTime(atrasoMinutos);
+            }
+            
+            // Calcular extra de saída (saída depois das 15h)
+            if (saidaMinutos > saidaPadraoMinutos) {
+                const extraMinutos = saidaMinutos - saidaPadraoMinutos;
+                resultado.extraSaida = minutesToTime(extraMinutos);
+            }
+            
+            // Calcular saldo final: (Extra Entrada + Extra Saída) - Atraso
+            const totalExtraMinutos = timeToMinutes(resultado.extraEntrada) + timeToMinutes(resultado.extraSaida);
+            const atrasoMinutos = timeToMinutes(resultado.atraso);
+            const saldoMinutos = totalExtraMinutos - atrasoMinutos;
+            
+            resultado.saldoFinal = minutesToTime(Math.abs(saldoMinutos));
+            resultado.saldoPositivo = saldoMinutos >= 0;
+            
+            return resultado;
+        }
+        
+        function timeToMinutes(time) {
+            const [hours, minutes] = time.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+        
+        function minutesToTime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:00`;
+        }
+        
+        function calcularHorasTrabalhadas(entrada, saida) {
+            const entradaMinutos = timeToMinutes(entrada);
+            const saidaMinutos = timeToMinutes(saida);
+            let totalMinutos = saidaMinutos - entradaMinutos;
+            
+            if (totalMinutos < 0) totalMinutos += 24 * 60; // Próximo dia
+            
+            return minutesToTime(totalMinutos);
+        }
+        
+        function formatarHorarioCompleto(horario) {
+            // Se já tem segundos, retorna como está
+            if (horario.includes(':') && horario.split(':').length === 3) {
+                return horario;
+            }
+            // Se só tem HH:MM, adiciona :00
+            if (horario.includes(':') && horario.split(':').length === 2) {
+                return horario + ':00';
+            }
+            return horario;
+        }
+        
+        // Funções de interface
+        function atualizarCalculoPreview() {
+            const entrada = document.getElementById('entrada').value;
+            const saida = document.getElementById('saida').value;
+            const preview = document.getElementById('calculo-preview');
+            const detalhes = document.getElementById('calculo-detalhes');
+            
+            if (entrada && saida) {
+                const calculo = calcularHorasExtras(entrada, saida);
+                const horasTrabalhadas = calcularHorasTrabalhadas(entrada, saida);
+                
+                detalhes.innerHTML = `
+                    <div class="calc-row">
+                        <span>Horas Trabalhadas:</span>
+                        <span>${horasTrabalhadas}</span>
+                    </div>
+                    <div class="calc-row">
+                        <span>Extra de Entrada:</span>
+                        <span class="extra-positive">${calculo.extraEntrada}</span>
+                    </div>
+                    <div class="calc-row">
+                        <span>Extra de Saída:</span>
+                        <span class="extra-positive">${calculo.extraSaida}</span>
+                    </div>
+                    <div class="calc-row">
+                        <span>Atraso:</span>
+                        <span class="extra-negative">${calculo.atraso}</span>
+                    </div>
+                    <div class="calc-row">
+                        <span>Saldo Final:</span>
+                        <span class="${calculo.saldoPositivo ? 'extra-positive' : 'extra-negative'}">
+                            ${calculo.saldoPositivo ? '+' : '-'}${calculo.saldoFinal}
+                        </span>
+                    </div>
+                `;
+                
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+        
+        function showTab(tabName) {
+            // Esconder todas as abas
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remover classe active de todos os botões
+            document.querySelectorAll('.tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostrar aba selecionada
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Atualizar conteúdo da aba
+            if (tabName === 'painel') {
+                atualizarPainel();
+            } else if (tabName === 'lancamentos') {
+                atualizarLancamentos();
+            } else if (tabName === 'relatorios') {
+                atualizarRelatorios();
+                atualizarTotaisSemanais();
+            }
+        }
+        
+        function adicionarLancamento(event) {
+            event.preventDefault();
+            
+            const funcionario = document.getElementById('funcionario').value;
+            const data = document.getElementById('data').value;
+            const entrada = document.getElementById('entrada').value;
+            const saida = document.getElementById('saida').value;
+            
+            const calculo = calcularHorasExtras(entrada, saida);
+            const horasTrabalhadas = calcularHorasTrabalhadas(entrada, saida);
+            
+            const novoLancamento = {
+                id: Date.now(),
+                funcionario,
+                data,
+                entrada,
+                saida,
+                horasTrabalhadas,
+                extraEntrada: calculo.extraEntrada,
+                extraSaida: calculo.extraSaida,
+                atraso: calculo.atraso,
+                saldoFinal: calculo.saldoFinal,
+                saldoPositivo: calculo.saldoPositivo
+            };
+            
+            lancamentos.push(novoLancamento);
+            salvarDados();
+            
+            // Limpar formulário
+            document.getElementById('lancamento-form').reset();
+            document.getElementById('calculo-preview').style.display = 'none';
+            
+            // Atualizar tabela
+            atualizarLancamentos();
+            
+            // Mostrar mensagem de sucesso
+            mostrarAlerta('Lançamento adicionado com sucesso!', 'success');
+        }
+        
+        function excluirLancamento(id) {
+            if (confirm('Tem certeza que deseja excluir este lançamento?')) {
+                lancamentos = lancamentos.filter(l => l.id !== id);
+                salvarDados();
+                atualizarLancamentos();
+                mostrarAlerta('Lançamento excluído com sucesso!', 'success');
+            }
+        }
+        
+        function salvarDados() {
+            localStorage.setItem('lancamentos_automatico', JSON.stringify(lancamentos));
+        }
+        
+        function mostrarAlerta(mensagem, tipo) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${tipo}`;
+            alertDiv.textContent = mensagem;
+            
+            const container = document.querySelector('.tab-content.active');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+        
+        function atualizarPainel() {
+            const funcionarios = [...new Set(lancamentos.map(l => l.funcionario))];
+            
+            // Estatísticas de funcionários
+            const funcionariosStats = document.getElementById('funcionarios-stats');
+            funcionariosStats.innerHTML = funcionarios.map(f => {
+                const lancamentosFuncionario = lancamentos.filter(l => l.funcionario === f);
+                return `<div class="stat"><span>${f}</span><span>${lancamentosFuncionario.length} dias</span></div>`;
+            }).join('');
+            
+            // Estatísticas da semana
+            const hoje = new Date();
+            const inicioSemana = new Date(hoje.setDate(hoje.getDate() - hoje.getDay()));
+            const lancamentosSemana = lancamentos.filter(l => {
+                const dataLancamento = new Date(l.data);
+                return dataLancamento >= inicioSemana;
+            });
+            
+            const semanaStats = document.getElementById('semana-stats');
+            semanaStats.innerHTML = `
+                <div class="stat"><span>Lançamentos</span><span>${lancamentosSemana.length}</span></div>
+                <div class="stat"><span>Funcionários</span><span>${[...new Set(lancamentosSemana.map(l => l.funcionario))].length}</span></div>
+            `;
+            
+            // Estatísticas de extras
+            const extrasStats = document.getElementById('extras-stats');
+            const totalSaldos = funcionarios.map(f => {
+                const saldoTotal = lancamentos
+                    .filter(l => l.funcionario === f)
+                    .reduce((total, l) => {
+                        const saldoMinutos = timeToMinutes(l.saldoFinal) * (l.saldoPositivo ? 1 : -1);
+                        return total + saldoMinutos;
+                    }, 0);
+                
+                return {
+                    funcionario: f,
+                    saldo: minutesToTime(Math.abs(saldoTotal)),
+                    positivo: saldoTotal >= 0
+                };
+            });
+            
+            extrasStats.innerHTML = totalSaldos.map(s => 
+                `<div class="stat">
+                    <span>${s.funcionario}</span>
+                    <span class="${s.positivo ? 'extra-positive' : 'extra-negative'}">
+                        ${s.positivo ? '+' : '-'}${s.saldo}
+                    </span>
+                </div>`
+            ).join('');
+            
+            // Resumo por funcionário
+            const resumoTbody = document.getElementById('resumo-tbody');
+            resumoTbody.innerHTML = funcionarios.map(funcionario => {
+                const lancamentosFuncionario = lancamentos.filter(l => l.funcionario === funcionario);
+                
+                const totalExtras = lancamentosFuncionario.reduce((total, l) => {
+                    return total + timeToMinutes(l.extraEntrada) + timeToMinutes(l.extraSaida);
+                }, 0);
+                
+                const totalAtrasos = lancamentosFuncionario.reduce((total, l) => {
+                    return total + timeToMinutes(l.atraso);
+                }, 0);
+                
+                const saldoFinal = totalExtras - totalAtrasos;
+                
+                return `
+                    <tr>
+                        <td>${funcionario}</td>
+                        <td class="extra-positive">${minutesToTime(totalExtras)}</td>
+                        <td class="extra-negative">${minutesToTime(totalAtrasos)}</td>
+                        <td class="${saldoFinal >= 0 ? 'extra-positive' : 'extra-negative'}">
+                            ${saldoFinal >= 0 ? '+' : '-'}${minutesToTime(Math.abs(saldoFinal))}
+                        </td>
+                        <td>${lancamentosFuncionario.length}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function atualizarLancamentos() {
+            const tbody = document.getElementById('lancamentos-tbody');
+            
+            tbody.innerHTML = lancamentos.map(l => `
+                <tr>
+                    <td>${l.funcionario}</td>
+                    <td>${new Date(l.data + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+                    <td>${formatarHorarioCompleto(l.entrada)}</td>
+                    <td>${formatarHorarioCompleto(l.saida)}</td>
+                    <td class="extra-positive">${l.extraEntrada}</td>
+                    <td class="extra-positive">${l.extraSaida}</td>
+                    <td class="extra-negative">${l.atraso}</td>
+                    <td class="${l.saldoPositivo ? 'extra-positive' : 'extra-negative'}">
+                        ${l.saldoPositivo ? '+' : '-'}${l.saldoFinal}
+                    </td>
+                    <td>
+                        <button class="btn btn-danger" onclick="excluirLancamento(${l.id})">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Funções auxiliares para semanas
+        function obterSemanaDoAno(data) {
+            const d = new Date(data + 'T00:00:00');
+            const startOfYear = new Date(d.getFullYear(), 0, 1);
+            const days = Math.floor((d - startOfYear) / (24 * 60 * 60 * 1000));
+            const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
+            return `${d.getFullYear()}-S${weekNumber.toString().padStart(2, '0')}`;
+        }
+
+        function calcularTotaisSemanais() {
+            const totaisSemanais = {};
+
+            lancamentos.forEach(l => {
+                const semana = obterSemanaDoAno(l.data);
+                const chave = `${semana}-${l.funcionario}`;
+
+                if (!totaisSemanais[chave]) {
+                    totaisSemanais[chave] = {
+                        semana: semana,
+                        funcionario: l.funcionario,
+                        extraEntrada: 0,
+                        extraSaida: 0,
+                        atrasos: 0,
+                        saldoFinal: 0
+                    };
+                }
+
+                // Somar horas extras de entrada
+                if (l.extraEntrada !== '00:00:00') {
+                    totaisSemanais[chave].extraEntrada += timeToMinutes(l.extraEntrada);
+                }
+
+                // Somar horas extras de saída
+                if (l.extraSaida !== '00:00:00') {
+                    totaisSemanais[chave].extraSaida += timeToMinutes(l.extraSaida);
+                }
+
+                // Somar atrasos
+                if (l.atraso !== '00:00:00') {
+                    totaisSemanais[chave].atrasos += timeToMinutes(l.atraso);
+                }
+
+                // Calcular saldo final da semana
+                const totalExtras = totaisSemanais[chave].extraEntrada + totaisSemanais[chave].extraSaida;
+                const saldoMinutos = totalExtras - totaisSemanais[chave].atrasos;
+                totaisSemanais[chave].saldoFinal = saldoMinutos;
+            });
+
+            return Object.values(totaisSemanais).sort((a, b) => {
+                if (a.semana !== b.semana) return a.semana.localeCompare(b.semana);
+                return a.funcionario.localeCompare(b.funcionario);
+            });
+        }
+
+        function atualizarTotaisSemanais() {
+            const totais = calcularTotaisSemanais();
+            const tbody = document.getElementById('totaisSemanaisTbody');
+
+            tbody.innerHTML = totais.map(t => `
+                <tr>
+                    <td><strong>${t.semana}</strong></td>
+                    <td>${t.funcionario}</td>
+                    <td class="extra-positive">${minutesToTime(t.extraEntrada)}</td>
+                    <td class="extra-positive">${minutesToTime(t.extraSaida)}</td>
+                    <td class="extra-negative">${minutesToTime(t.atrasos)}</td>
+                    <td class="${t.saldoFinal >= 0 ? 'extra-positive' : 'extra-negative'}">
+                        ${t.saldoFinal >= 0 ? '+' : '-'}${minutesToTime(Math.abs(t.saldoFinal))}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function aplicarFiltros() {
+            const funcionarioSelecionado = document.getElementById('filtroFuncionario').value;
+            const dataInicio = document.getElementById('filtroDataInicio').value;
+            const dataFim = document.getElementById('filtroDataFim').value;
+            
+            let lancamentosFiltrados = [...lancamentos];
+            
+            // Filtrar por funcionário
+            if (funcionarioSelecionado) {
+                lancamentosFiltrados = lancamentosFiltrados.filter(l => l.funcionario === funcionarioSelecionado);
+            }
+            
+            // Filtrar por data
+            if (dataInicio) {
+                lancamentosFiltrados = lancamentosFiltrados.filter(l => l.data >= dataInicio);
+            }
+            if (dataFim) {
+                lancamentosFiltrados = lancamentosFiltrados.filter(l => l.data <= dataFim);
+            }
+            
+            // Atualizar tabela de relatórios
+            const relatorioTbody = document.getElementById('relatorio-tbody');
+            relatorioTbody.innerHTML = lancamentosFiltrados.map(l => `
+                <tr>
+                    <td>${new Date(l.data + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+                    <td>${l.funcionario}</td>
+                    <td>${formatarHorarioCompleto(l.entrada)}</td>
+                    <td>${formatarHorarioCompleto(l.saida)}</td>
+                    <td>${l.horasTrabalhadas}</td>
+                    <td class="extra-positive">${l.extraEntrada}</td>
+                    <td class="extra-positive">${l.extraSaida}</td>
+                    <td class="extra-negative">${l.atraso}</td>
+                    <td class="${l.saldoPositivo ? 'extra-positive' : 'extra-negative'}">
+                        ${l.saldoPositivo ? '+' : '-'}${l.saldoFinal}
+                    </td>
+                </tr>
+            `).join('');
+            
+            // Atualizar totais semanais com filtros
+            atualizarTotaisSemanaisFiltrados(lancamentosFiltrados);
+        }
+
+        function atualizarTotaisSemanaisFiltrados(lancamentosFiltrados) {
+            const totaisSemanais = {};
+
+            lancamentosFiltrados.forEach(l => {
+                const semana = obterSemanaDoAno(l.data);
+                const chave = `${semana}-${l.funcionario}`;
+
+                if (!totaisSemanais[chave]) {
+                    totaisSemanais[chave] = {
+                        semana: semana,
+                        funcionario: l.funcionario,
+                        extraEntrada: 0,
+                        extraSaida: 0,
+                        atrasos: 0,
+                        saldoFinal: 0
+                    };
+                }
+
+                // Somar horas extras de entrada
+                if (l.extraEntrada !== '00:00:00') {
+                    totaisSemanais[chave].extraEntrada += timeToMinutes(l.extraEntrada);
+                }
+
+                // Somar horas extras de saída
+                if (l.extraSaida !== '00:00:00') {
+                    totaisSemanais[chave].extraSaida += timeToMinutes(l.extraSaida);
+                }
+
+                // Somar atrasos
+                if (l.atraso !== '00:00:00') {
+                    totaisSemanais[chave].atrasos += timeToMinutes(l.atraso);
+                }
+
+                // Calcular saldo final da semana
+                const totalExtras = totaisSemanais[chave].extraEntrada + totaisSemanais[chave].extraSaida;
+                const saldoMinutos = totalExtras - totaisSemanais[chave].atrasos;
+                totaisSemanais[chave].saldoFinal = saldoMinutos;
+            });
+
+            const totais = Object.values(totaisSemanais).sort((a, b) => {
+                if (a.semana !== b.semana) return a.semana.localeCompare(b.semana);
+                return a.funcionario.localeCompare(b.funcionario);
+            });
+
+            const tbody = document.getElementById('totaisSemanaisTbody');
+            tbody.innerHTML = totais.map(t => `
+                <tr>
+                    <td><strong>${t.semana}</strong></td>
+                    <td>${t.funcionario}</td>
+                    <td class="extra-positive">${minutesToTime(t.extraEntrada)}</td>
+                    <td class="extra-positive">${minutesToTime(t.extraSaida)}</td>
+                    <td class="extra-negative">${minutesToTime(t.atrasos)}</td>
+                    <td class="${t.saldoFinal >= 0 ? 'extra-positive' : 'extra-negative'}">
+                        ${t.saldoFinal >= 0 ? '+' : '-'}${minutesToTime(Math.abs(t.saldoFinal))}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function exportarRelatorio() {
+            const funcionarioSelecionado = document.getElementById('filtroFuncionario').value;
+            const dataInicio = document.getElementById('filtroDataInicio').value;
+            const dataFim = document.getElementById('filtroDataFim').value;
+            
+            let lancamentosFiltrados = [...lancamentos];
+            
+            // Aplicar filtros
+            if (funcionarioSelecionado) {
+                lancamentosFiltrados = lancamentosFiltrados.filter(l => l.funcionario === funcionarioSelecionado);
+            }
+            if (dataInicio) {
+                lancamentosFiltrados = lancamentosFiltrados.filter(l => l.data >= dataInicio);
+            }
+            if (dataFim) {
+                lancamentosFiltrados = lancamentosFiltrados.filter(l => l.data <= dataFim);
+            }
+            
+            // Criar CSV
+            const headers = ['Data', 'Funcionário', 'Entrada', 'Saída', 'Horas Trabalhadas', 'Extra Entrada', 'Extra Saída', 'Atraso', 'Saldo'];
+            const csvContent = [headers.join(',')];
+            
+            lancamentosFiltrados.forEach(l => {
+                const row = [
+                    new Date(l.data + 'T00:00:00').toLocaleDateString('pt-BR'),
+                    l.funcionario,
+                    formatarHorarioCompleto(l.entrada),
+                    formatarHorarioCompleto(l.saida),
+                    l.horasTrabalhadas,
+                    l.extraEntrada,
+                    l.extraSaida,
+                    l.atraso,
+                    `${l.saldoPositivo ? '+' : '-'}${l.saldoFinal}`
+                ];
+                csvContent.push(row.join(','));
+            });
+            
+            // Download do arquivo
+            const blob = new Blob([csvContent.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `relatorio_horas_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function atualizarRelatorios() {
+            // Estatísticas gerais
+            const statsGerais = document.getElementById('stats-gerais');
+            const totalLancamentos = lancamentos.length;
+            const funcionarios = [...new Set(lancamentos.map(l => l.funcionario))];
+            
+            statsGerais.innerHTML = `
+                <div class="stat"><span>Total de Lançamentos</span><span>${totalLancamentos}</span></div>
+                <div class="stat"><span>Funcionários Ativos</span><span>${funcionarios.length}</span></div>
+                <div class="stat"><span>Período</span><span>${totalLancamentos > 0 ? 'Ativo' : 'Sem dados'}</span></div>
+            `;
+            
+            // Análise de horários
+            const analiseHorarios = document.getElementById('analise-horarios');
+            const chegadasAntes8h = lancamentos.filter(l => timeToMinutes(l.entrada) < timeToMinutes(HORARIO_ENTRADA_PADRAO)).length;
+            const saidasDepois15h = lancamentos.filter(l => timeToMinutes(l.saida) > timeToMinutes(HORARIO_SAIDA_PADRAO)).length;
+            const atrasos = lancamentos.filter(l => timeToMinutes(l.entrada) > timeToMinutes(HORARIO_ENTRADA_PADRAO)).length;
+            
+            analiseHorarios.innerHTML = `
+                <div class="stat"><span>Chegadas antes 8h</span><span class="extra-positive">${chegadasAntes8h}</span></div>
+                <div class="stat"><span>Saídas depois 15h</span><span class="extra-positive">${saidasDepois15h}</span></div>
+                <div class="stat"><span>Atrasos</span><span class="extra-negative">${atrasos}</span></div>
+            `;
+            
+            // Atualizar filtro de funcionários
+            const filtroFuncionario = document.getElementById('filtroFuncionario');
+            filtroFuncionario.innerHTML = '<option value="">Todos</option>' + 
+                funcionarios.map(f => `<option value="${f}">${f}</option>`).join('');
+            
+            // Exibir todos os lançamentos inicialmente
+            aplicarFiltros();
+        }
+        
+        // Event listeners
+        document.getElementById('lancamento-form').addEventListener('submit', adicionarLancamento);
+        document.getElementById('entrada').addEventListener('change', atualizarCalculoPreview);
+        document.getElementById('saida').addEventListener('change', atualizarCalculoPreview);
+        document.getElementById('data').valueAsDate = new Date();
+        
+        // Inicializar
+        atualizarPainel();
+        atualizarLancamentos();
+        atualizarRelatorios();
+    </script>
+</body>
+</html>
