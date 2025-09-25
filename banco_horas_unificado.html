@@ -757,12 +757,12 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="entrada">Entrada:</label>
-                        <input type="time" id="entrada" step="1" required>
+                        <label for="entrada">Entrada (HH:MM:SS):</label>
+                        <input type="time" id="entrada" step="1" placeholder="08:00:00" required>
                     </div>
                     <div class="form-group">
-                        <label for="saida">Saída:</label>
-                        <input type="time" id="saida" step="1" required>
+                        <label for="saida">Saída (HH:MM:SS):</label>
+                        <input type="time" id="saida" step="1" placeholder="17:00:00" required>
                     </div>
                 </div>
                 <button class="btn btn-primary" onclick="adicionarLancamento()">➕ Adicionar Lançamento</button>
@@ -873,10 +873,10 @@
                             <tr>
                                 <th>Semana</th>
                                 <th>Funcionário</th>
-                                <th>Horas Extras Entrada</th>
-                                <th>Horas Extras Saída</th>
+                                <th>Total Extras</th>
                                 <th>Total Atrasos</th>
                                 <th>Saldo Semanal</th>
+                                <th>Dias Trabalhados</th>
                             </tr>
                         </thead>
                         <tbody id="totaisSemanaisTbody">
@@ -933,7 +933,7 @@
     <script>
         // Configurações do sistema
         const HORARIO_ENTRADA_PADRAO = '08:00:00';
-        const HORARIO_SAIDA_PADRAO = '15:00:00';
+        const HORARIO_SAIDA_PADRAO = '17:00:00';
         const FUNCIONARIOS = ['RONALDO', 'JANAINA'];
         
         // Dados globais
@@ -1140,8 +1140,8 @@
                 row.innerHTML = `
                     <td>${new Date(l.data).toLocaleDateString('pt-BR')}</td>
                     <td>${l.funcionario}</td>
-                    <td>${l.entrada}</td>
-                    <td>${l.saida}</td>
+                    <td>${formatarHorarioCompleto(l.entrada)}</td>
+                    <td>${formatarHorarioCompleto(l.saida)}</td>
                     <td>${minutesToTime(l.horasTrabalhadas)}</td>
                     <td class="${l.saldo >= 0 ? 'extra-positivo' : 'extra-negativo'}">${minutesToTime(l.saldo)}</td>
                 `;
@@ -1160,8 +1160,8 @@
                 row.innerHTML = `
                     <td>${new Date(l.data).toLocaleDateString('pt-BR')}</td>
                     <td>${l.funcionario}</td>
-                    <td>${l.entrada}</td>
-                    <td>${l.saida}</td>
+                    <td>${formatarHorarioCompleto(l.entrada)}</td>
+                    <td>${formatarHorarioCompleto(l.saida)}</td>
                     <td>${minutesToTime(l.horasTrabalhadas)}</td>
                     <td class="extra-positivo">${minutesToTime(l.extraEntrada)}</td>
                     <td class="extra-positivo">${minutesToTime(l.extraSaida)}</td>
@@ -1211,9 +1211,9 @@
                 html += `
                     <div class="day-row">
                         <div class="day-label">${dia}</div>
-                        <input type="time" class="day-input" step="1" placeholder="Entrada" 
+                        <input type="time" class="day-input" step="1" placeholder="08:00:00" 
                                onchange="salvarHorarioSemana('${semana}', '${dia}', 'entrada', this.value, '${funcionario}')">
-                        <input type="time" class="day-input" step="1" placeholder="Saída"
+                        <input type="time" class="day-input" step="1" placeholder="17:00:00"
                                onchange="salvarHorarioSemana('${semana}', '${dia}', 'saida', this.value, '${funcionario}')">
                     </div>
                 `;
@@ -1254,49 +1254,159 @@
             return Math.ceil((diasPassados + primeiroDiaAno.getDay() + 1) / 7);
         }
 
-        // Função para calcular totais semanais
-        function calcularTotaisSemanais() {
-            const totaisPorSemana = {};
+        // Função para agrupar registros por semana
+        function groupRecordsByWeek(records) {
+            const weeks = {};
             
-            lancamentos.forEach(lancamento => {
-                const semana = obterSemanaDoAno(lancamento.data);
-                const chave = `${semana}-${lancamento.funcionario}`;
-                
-                if (!totaisPorSemana[chave]) {
-                    totaisPorSemana[chave] = {
-                        semana,
-                        funcionario: lancamento.funcionario,
-                        extraEntrada: 0,
-                        extraSaida: 0,
-                        atrasos: 0,
-                        saldo: 0
-                    };
+            records.forEach(record => {
+                const weekKey = getWeekKey(record.data);
+                if (!weeks[weekKey]) {
+                    weeks[weekKey] = [];
                 }
-                
-                totaisPorSemana[chave].extraEntrada += lancamento.extraEntrada;
-                totaisPorSemana[chave].extraSaida += lancamento.extraSaida;
-                totaisPorSemana[chave].atrasos += lancamento.atraso;
-                totaisPorSemana[chave].saldo += lancamento.saldo;
+                weeks[weekKey].push(record);
             });
             
-            return Object.values(totaisPorSemana);
+            return weeks;
+        }
+
+        // Função para obter chave da semana
+        function getWeekKey(dateString) {
+            const date = new Date(dateString);
+            const startOfWeek = getWeekStartDate(date);
+            return startOfWeek.toISOString().split('T')[0];
+        }
+
+        // Função para obter início da semana (domingo)
+        function getWeekStartDate(date) {
+            const startOfWeek = new Date(date);
+            startOfWeek.setDate(date.getDate() - date.getDay());
+            startOfWeek.setHours(0, 0, 0, 0);
+            return startOfWeek;
+        }
+
+        // Função para obter fim da semana (sábado)
+        function getWeekEndDate(date) {
+            const endOfWeek = new Date(date);
+            endOfWeek.setDate(date.getDate() + (6 - date.getDay()));
+            endOfWeek.setHours(23, 59, 59, 999);
+            return endOfWeek;
+        }
+
+        // Função para calcular horas semanais
+        function calculateWeeklyHours(weekRecords) {
+            let totalBonusMinutes = 0;
+            let totalPenaltyMinutes = 0;
+            let observations = [];
+
+            weekRecords.forEach(record => {
+                const date = new Date(record.data);
+                const dayOfWeek = date.getDay();
+                
+                // Horários padrão por dia da semana
+                let standardStart, standardEnd;
+                if (dayOfWeek === 0) { // Domingo
+                    standardStart = timeToMinutes('08:00');
+                    standardEnd = timeToMinutes('12:00');
+                } else { // Segunda a Sábado
+                    standardStart = timeToMinutes('08:00');
+                    standardEnd = timeToMinutes('17:00');
+                }
+                
+                const entryMinutes = timeToMinutes(record.entrada);
+                const exitMinutes = timeToMinutes(record.saida);
+                
+                let extraMinutes = 0;
+                let penaltyMinutes = 0;
+                
+                // Entrada antecipada = EXTRA
+                if (entryMinutes < standardStart) {
+                    extraMinutes += standardStart - entryMinutes;
+                }
+                
+                // Saída tardia = EXTRA
+                if (exitMinutes > standardEnd) {
+                    extraMinutes += exitMinutes - standardEnd;
+                }
+                
+                // Atraso na entrada = PENALIDADE
+                if (entryMinutes > standardStart) {
+                    penaltyMinutes += entryMinutes - standardStart;
+                }
+                
+                // Saída antecipada = PENALIDADE
+                if (exitMinutes < standardEnd) {
+                    penaltyMinutes += standardEnd - exitMinutes;
+                }
+                
+                totalBonusMinutes += extraMinutes;
+                totalPenaltyMinutes += penaltyMinutes;
+                
+                observations.push(`${record.data}: ${record.funcionario} - Extras: ${minutesToTime(extraMinutes)}, Atrasos: ${minutesToTime(penaltyMinutes)}`);
+            });
+
+            // Saldo semanal = total de extras - total de penalidades
+            const weeklyBalance = totalBonusMinutes - totalPenaltyMinutes;
+
+            return {
+                totalBonusHours: totalBonusMinutes / 60,
+                totalPenaltyHours: totalPenaltyMinutes / 60,
+                weeklyBalance: weeklyBalance / 60,
+                observations: observations,
+                daysWorked: weekRecords.length
+            };
+        }
+
+        // Função para calcular totais semanais
+        function calcularTotaisSemanais() {
+            const funcionarios = [...new Set(lancamentos.map(l => l.funcionario))];
+            const totaisSemanais = [];
+            
+            funcionarios.forEach(funcionario => {
+                const lancamentosFuncionario = lancamentos.filter(l => l.funcionario === funcionario);
+                const weeklyGroups = groupRecordsByWeek(lancamentosFuncionario);
+                
+                // Ordenar semanas por data (mais recente primeiro)
+                const sortedWeeks = Object.keys(weeklyGroups).sort().reverse();
+                
+                sortedWeeks.forEach(weekKey => {
+                    const weekRecords = weeklyGroups[weekKey];
+                    const weeklyStats = calculateWeeklyHours(weekRecords);
+                    
+                    const startDate = new Date(weekKey);
+                    const endDate = getWeekEndDate(startDate);
+                    
+                    totaisSemanais.push({
+                        semana: `${startDate.toLocaleDateString('pt-BR')} - ${endDate.toLocaleDateString('pt-BR')}`,
+                        funcionario: funcionario,
+                        extraEntrada: weeklyStats.totalBonusHours * 60, // Convertendo para minutos
+                        extraSaida: 0, // Já incluído no totalBonusHours
+                        atrasos: weeklyStats.totalPenaltyHours * 60, // Convertendo para minutos
+                        saldo: weeklyStats.weeklyBalance * 60, // Convertendo para minutos
+                        diasTrabalhados: weeklyStats.daysWorked
+                    });
+                });
+            });
+            
+            return totaisSemanais;
         }
 
         // Função para atualizar totais semanais
         function atualizarTotaisSemanais() {
             const totais = calcularTotaisSemanais();
             const tbody = document.getElementById('totaisSemanaisTbody');
+            if (!tbody) return;
+            
             tbody.innerHTML = '';
             
             totais.forEach(total => {
                 const row = tbody.insertRow();
                 row.innerHTML = `
-                    <td>Semana ${total.semana}</td>
+                    <td>${total.semana}</td>
                     <td>${total.funcionario}</td>
                     <td class="extra-positivo">${minutesToTime(total.extraEntrada)}</td>
-                    <td class="extra-positivo">${minutesToTime(total.extraSaida)}</td>
                     <td class="extra-negativo">${minutesToTime(total.atrasos)}</td>
                     <td class="${total.saldo >= 0 ? 'extra-positivo' : 'extra-negativo'}">${minutesToTime(total.saldo)}</td>
+                    <td><small>${total.diasTrabalhados} dias</small></td>
                 `;
             });
         }
@@ -1423,8 +1533,8 @@
                 row.innerHTML = `
                     <td>${new Date(l.data).toLocaleDateString('pt-BR')}</td>
                     <td>${l.funcionario}</td>
-                    <td>${l.entrada}</td>
-                    <td>${l.saida}</td>
+                    <td>${formatarHorarioCompleto(l.entrada)}</td>
+                    <td>${formatarHorarioCompleto(l.saida)}</td>
                     <td>${minutesToTime(l.horasTrabalhadas)}</td>
                     <td class="extra-positivo">${minutesToTime(l.extraEntrada)}</td>
                     <td class="extra-positivo">${minutesToTime(l.extraSaida)}</td>
@@ -1485,7 +1595,7 @@
             let csv = 'Data,Funcionário,Entrada,Saída,Horas Trabalhadas,Extra Entrada,Extra Saída,Atraso,Saldo\n';
             
             lancamentosFiltrados.forEach(l => {
-                csv += `${l.data},${l.funcionario},${l.entrada},${l.saida},${minutesToTime(l.horasTrabalhadas)},${minutesToTime(l.extraEntrada)},${minutesToTime(l.extraSaida)},${minutesToTime(l.atraso)},${minutesToTime(l.saldo)}\n`;
+                csv += `${l.data},${l.funcionario},${formatarHorarioCompleto(l.entrada)},${formatarHorarioCompleto(l.saida)},${minutesToTime(l.horasTrabalhadas)},${minutesToTime(l.extraEntrada)},${minutesToTime(l.extraSaida)},${minutesToTime(l.atraso)},${minutesToTime(l.saldo)}\n`;
             });
             
             const blob = new Blob([csv], { type: 'text/csv' });
@@ -1512,5 +1622,10 @@
             }, 3000);
         }
     </script>
+    
+    <!-- Créditos -->
+    <footer style="text-align: center; padding: 20px; margin-top: 50px; border-top: 1px solid #ddd; color: #666; font-size: 14px;">
+        <p>Desenvolvido por <strong>Ronaldo_Ssh</strong></p>
+    </footer>
 </body>
 </html>
