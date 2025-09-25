@@ -1,0 +1,76 @@
+{
+  "name": "banco-de-horas-sistema",
+  "version": "2.0.0",
+  "description": "Sistema tecnológico para controle de banco de horas com Dark Mode e efeitos laser",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server . -p 3000 -o",
+    "dev": "npx live-server --port=3000 --open=/",
+    "build": "echo 'Build completed - Static files ready'",
+    "test": "echo 'No tests specified'",
+    "deploy": "echo 'Deploy to GitHub Pages'",
+    "backup": "node scripts/backup.js",
+    "validate": "npx html-validate *.html"
+  },
+  "keywords": [
+    "banco-de-horas",
+    "timesheet",
+    "controle-ponto",
+    "dark-mode",
+    "laser-effects",
+    "javascript",
+    "html5",
+    "css3",
+    "github-pages",
+    "localstorage",
+    "responsive",
+    "modern-ui"
+  ],
+  "author": {
+    "name": "Desenvolvedor Tecnológico",
+    "email": "dev@exemplo.com",
+    "url": "https://github.com/username"
+  },
+  "license": "MIT",
+  "homepage": "https://username.github.io/banco-de-horas",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/username/banco-de-horas.git"
+  },
+  "bugs": {
+    "url": "https://github.com/username/banco-de-horas/issues"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2",
+    "html-validate": "^8.7.4"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ],
+  "files": [
+    "*.html",
+    "assets/",
+    "data/",
+    "docs/",
+    "README.md",
+    "LICENSE"
+  ],
+  "config": {
+    "theme": "dark",
+    "laserEffects": true,
+    "autoSave": true,
+    "language": "pt-BR"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/username"
+  }
+}

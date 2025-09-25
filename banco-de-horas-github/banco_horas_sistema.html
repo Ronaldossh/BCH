@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Banco de Horas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .card.positive .value {
+            color: #27ae60;
+        }
+
+        .card.negative .value {
+            color: #e74c3c;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .form-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .form-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input, .form-group select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-positive {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .status-negative {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .week-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .week-selector button {
+            padding: 8px 16px;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .week-selector button.active {
+            background: #3498db;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕐 Sistema de Banco de Horas</h1>
+            <p>Controle completo de horários e horas extras</p>
+        </div>
+
+        <div class="dashboard">
+            <div class="card">
+                <h3>Horas Trabalhadas (Semana)</h3>
+                <div class="value" id="horasSemanais">0:00</div>
+                <small>Meta: 44:00</small>
+            </div>
+            <div class="card positive">
+                <h3>Horas Extras</h3>
+                <div class="value" id="horasExtras">+0:00</div>
+                <small>Acumulado</small>
+            </div>
+            <div class="card negative">
+                <h3>Atrasos</h3>
+                <div class="value" id="totalAtrasos">0:00</div>
+                <small>Total da semana</small>
+            </div>
+            <div class="card">
+                <h3>Saldo do Mês</h3>
+                <div class="value" id="saldoMes">0:00</div>
+                <small>Horas extras - Atrasos</small>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="form-section">
+                <h2>📝 Registrar Ponto</h2>
+                <form id="pontoForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="funcionario">Funcionário:</label>
+                            <select id="funcionario" required>
+                                <option value="">Selecione...</option>
+                                <option value="RONALDO">RONALDO</option>
+                                <option value="JANAINA">JANAINA</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="data">Data:</label>
+                            <input type="date" id="data" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="diaSemana">Dia da Semana:</label>
+                            <select id="diaSemana" required>
+                                <option value="">Selecione...</option>
+                                <option value="SEGUNDA">Segunda-feira</option>
+                                <option value="TERCA">Terça-feira</option>
+                                <option value="QUARTA">Quarta-feira</option>
+                                <option value="QUINTA">Quinta-feira</option>
+                                <option value="SEXTA">Sexta-feira</option>
+                                <option value="SABADO">Sábado</option>
+                                <option value="DOMINGO">Domingo</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="entradaManha">Entrada Manhã:</label>
+                            <input type="time" id="entradaManha">
+                        </div>
+                        <div class="form-group">
+                            <label for="saidaAlmoco">Saída Almoço:</label>
+                            <input type="time" id="saidaAlmoco">
+                        </div>
+                        <div class="form-group">
+                            <label for="entradaTarde">Entrada Tarde:</label>
+                            <input type="time" id="entradaTarde">
+                        </div>
+                        <div class="form-group">
+                            <label for="saidaNoite">Saída Noite:</label>
+                            <input type="time" id="saidaNoite">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="observacoes">Observações:</label>
+                            <input type="text" id="observacoes" placeholder="Ex: Meio período, Folga, etc.">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn">➕ Adicionar Registro</button>
+                </form>
+            </div>
+
+            <div class="form-section">
+                <h2>📊 Registros de Ponto</h2>
+                
+                <div class="week-selector">
+                    <span>Filtrar por semana:</span>
+                    <button type="button" class="active" onclick="filtrarSemana('todas')">Todas</button>
+                    <button type="button" onclick="filtrarSemana(1)">Semana 1</button>
+                    <button type="button" onclick="filtrarSemana(2)">Semana 2</button>
+                    <button type="button" onclick="filtrarSemana(3)">Semana 3</button>
+                    <button type="button" onclick="filtrarSemana(4)">Semana 4</button>
+                </div>
+
+                <div class="table-container">
+                    <table id="registrosTable">
+                        <thead>
+                            <tr>
+                                <th>Funcionário</th>
+                                <th>Data</th>
+                                <th>Dia</th>
+                                <th>Entrada</th>
+                                <th>Saída Almoço</th>
+                                <th>Entrada Tarde</th>
+                                <th>Saída</th>
+                                <th>Horas Trabalhadas</th>
+                                <th>Horas Extras</th>
+                                <th>Atraso</th>
+                                <th>Observações</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="registrosBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let registros = [];
+        let semanaAtual = 'todas';
+
+        // Inicializar com data atual
+        document.getElementById('data').valueAsDate = new Date();
+
+        // Auto-preencher dia da semana baseado na data
+        document.getElementById('data').addEventListener('change', function() {
+            const data = new Date(this.value + 'T00:00:00');
+            const dias = ['DOMINGO', 'SEGUNDA', 'TERCA', 'QUARTA', 'QUINTA', 'SEXTA', 'SABADO'];
+            document.getElementById('diaSemana').value = dias[data.getDay()];
+        });
+
+        // Função para calcular horas trabalhadas
+        function calcularHoras(entrada1, saida1, entrada2, saida2) {
+            if (!entrada1 || !saida1) return { trabalhadas: 0, extras: 0, atraso: 0 };
+
+            const [h1, m1] = entrada1.split(':').map(Number);
+            const [h2, m2] = saida1.split(':').map(Number);
+            
+            let minutosTrabalhados = (h2 * 60 + m2) - (h1 * 60 + m1);
+            
+            if (entrada2 && saida2) {
+                const [h3, m3] = entrada2.split(':').map(Number);
+                const [h4, m4] = saida2.split(':').map(Number);
+                minutosTrabalhados += (h4 * 60 + m4) - (h3 * 60 + m3);
+            }
+
+            const horasTrabalhadas = minutosTrabalhados / 60;
+            const metaDiaria = 8; // 8 horas por dia
+            const horasExtras = Math.max(0, horasTrabalhadas - metaDiaria);
+            
+            // Calcular atraso (se entrada for depois das 8:00)
+            const horaEntrada = h1 + m1/60;
+            const atraso = Math.max(0, horaEntrada - 8);
+
+            return {
+                trabalhadas: horasTrabalhadas,
+                extras: horasExtras,
+                atraso: atraso
+            };
+        }
+
+        // Função para formatar horas
+        function formatarHoras(horas) {
+            const h = Math.floor(Math.abs(horas));
+            const m = Math.round((Math.abs(horas) - h) * 60);
+            const sinal = horas < 0 ? '-' : '';
+            return `${sinal}${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+        }
+
+        // Função para adicionar registro
+        document.getElementById('pontoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const funcionario = document.getElementById('funcionario').value;
+            const data = document.getElementById('data').value;
+            const diaSemana = document.getElementById('diaSemana').value;
+            const entradaManha = document.getElementById('entradaManha').value;
+            const saidaAlmoco = document.getElementById('saidaAlmoco').value;
+            const entradaTarde = document.getElementById('entradaTarde').value;
+            const saidaNoite = document.getElementById('saidaNoite').value;
+            const observacoes = document.getElementById('observacoes').value;
+
+            const horas = calcularHoras(entradaManha, saidaAlmoco, entradaTarde, saidaNoite);
+
+            const registro = {
+                id: Date.now(),
+                funcionario,
+                data,
+                diaSemana,
+                entradaManha,
+                saidaAlmoco,
+                entradaTarde,
+                saidaNoite,
+                horasTrabalhadas: horas.trabalhadas,
+                horasExtras: horas.extras,
+                atraso: horas.atraso,
+                observacoes
+            };
+
+            registros.push(registro);
+            atualizarTabela();
+            atualizarDashboard();
+            
+            // Limpar formulário
+            this.reset();
+            document.getElementById('data').valueAsDate = new Date();
+        });
+
+        // Função para atualizar tabela
+        function atualizarTabela() {
+            const tbody = document.getElementById('registrosBody');
+            tbody.innerHTML = '';
+
+            const registrosFiltrados = semanaAtual === 'todas' ? registros : 
+                registros.filter(r => getSemanaMes(r.data) === semanaAtual);
+
+            registrosFiltrados.forEach(registro => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${registro.funcionario}</td>
+                    <td>${new Date(registro.data + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+                    <td>${registro.diaSemana}</td>
+                    <td>${registro.entradaManha || '-'}</td>
+                    <td>${registro.saidaAlmoco || '-'}</td>
+                    <td>${registro.entradaTarde || '-'}</td>
+                    <td>${registro.saidaNoite || '-'}</td>
+                    <td>${formatarHoras(registro.horasTrabalhadas)}</td>
+                    <td class="${registro.horasExtras > 0 ? 'status-positive' : ''}">${formatarHoras(registro.horasExtras)}</td>
+                    <td class="${registro.atraso > 0 ? 'status-negative' : ''}">${formatarHoras(registro.atraso)}</td>
+                    <td>${registro.observacoes || '-'}</td>
+                    <td><button class="delete-btn" onclick="excluirRegistro(${registro.id})">🗑️</button></td>
+                `;
+            });
+        }
+
+        // Função para excluir registro
+        function excluirRegistro(id) {
+            if (confirm('Tem certeza que deseja excluir este registro?')) {
+                registros = registros.filter(r => r.id !== id);
+                atualizarTabela();
+                atualizarDashboard();
+            }
+        }
+
+        // Função para obter semana do mês
+        function getSemanaMes(dataStr) {
+            const data = new Date(dataStr + 'T00:00:00');
+            const primeiroDia = new Date(data.getFullYear(), data.getMonth(), 1);
+            const diasPassados = Math.floor((data - primeiroDia) / (24 * 60 * 60 * 1000));
+            return Math.floor(diasPassados / 7) + 1;
+        }
+
+        // Função para filtrar por semana
+        function filtrarSemana(semana) {
+            semanaAtual = semana;
+            
+            // Atualizar botões ativos
+            document.querySelectorAll('.week-selector button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            atualizarTabela();
+            atualizarDashboard();
+        }
+
+        // Função para atualizar dashboard
+        function atualizarDashboard() {
+            const registrosFiltrados = semanaAtual === 'todas' ? registros : 
+                registros.filter(r => getSemanaMes(r.data) === semanaAtual);
+
+            const totalHoras = registrosFiltrados.reduce((sum, r) => sum + r.horasTrabalhadas, 0);
+            const totalExtras = registrosFiltrados.reduce((sum, r) => sum + r.horasExtras, 0);
+            const totalAtrasos = registrosFiltrados.reduce((sum, r) => sum + r.atraso, 0);
+            const saldo = totalExtras - totalAtrasos;
+
+            document.getElementById('horasSemanais').textContent = formatarHoras(totalHoras);
+            document.getElementById('horasExtras').textContent = '+' + formatarHoras(totalExtras);
+            document.getElementById('totalAtrasos').textContent = formatarHoras(totalAtrasos);
+            document.getElementById('saldoMes').textContent = formatarHoras(saldo);
+
+            // Atualizar classes dos cards
+            const saldoCard = document.getElementById('saldoMes').parentElement;
+            saldoCard.className = 'card ' + (saldo > 0 ? 'positive' : saldo < 0 ? 'negative' : '');
+        }
+
+        // Carregar dados salvos
+        function carregarDados() {
+            const dadosSalvos = localStorage.getItem('bancoHoras');
+            if (dadosSalvos) {
+                registros = JSON.parse(dadosSalvos);
+                atualizarTabela();
+                atualizarDashboard();
+            }
+        }
+
+        // Salvar dados
+        function salvarDados() {
+            localStorage.setItem('bancoHoras', JSON.stringify(registros));
+        }
+
+        // Auto-salvar a cada mudança
+        setInterval(salvarDados, 5000);
+
+        // Carregar dados ao iniciar
+        carregarDados();
+    </script>
+</body>
+</html>

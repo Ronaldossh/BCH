@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banco de Horas - Sistema Completo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: #e9ecef;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-right: 1px solid #dee2e6;
+        }
+
+        .tab:last-child {
+            border-right: none;
+        }
+
+        .tab.active {
+            background: white;
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .tab:hover:not(.active) {
+            background: #f1f3f4;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            min-height: 600px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Painel Styles */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #3498db;
+        }
+
+        .card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .stat:last-child {
+            border-bottom: none;
+        }
+
+        /* Lançamentos Styles */
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        /* Tabela Styles */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .week-header {
+            background: #3498db !important;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .total-row {
+            background: #e8f5e8 !important;
+            font-weight: bold;
+        }
+
+        .employee-header {
+            background: #f39c12 !important;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Relatórios Styles */
+        .report-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .summary-card h4 {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .summary-card .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .export-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border-left: 5px solid;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-color: #27ae60;
+            color: #155724;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-color: #f39c12;
+            color: #856404;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border-color: #e74c3c;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕐 BANCO DE HORAS</h1>
+            <p>Sistema Completo de Controle de Horas - Versão Excel Replicada</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('painel')">📊 PAINEL</button>
+            <button class="tab" onclick="showTab('lancamentos')">📝 LANÇAMENTOS</button>
+            <button class="tab" onclick="showTab('relatorios')">📈 RELATÓRIOS</button>
+        </div>
+
+        <!-- ABA PAINEL -->
+        <div id="painel" class="tab-content active">
+            <h2>📊 Painel de Controle</h2>
+            
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>👥 Funcionários Ativos</h3>
+                    <div id="funcionarios-stats"></div>
+                </div>
+                
+                <div class="card">
+                    <h3>📅 Semana Atual</h3>
+                    <div id="semana-atual-stats"></div>
+                </div>
+                
+                <div class="card">
+                    <h3>⏰ Horas Extras do Mês</h3>
+                    <div id="extras-mes-stats"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📋 Resumo Semanal por Funcionário</h3>
+                <div class="table-container">
+                    <table id="resumo-semanal">
+                        <thead>
+                            <tr>
+                                <th>Funcionário</th>
+                                <th>Semana 1</th>
+                                <th>Semana 2</th>
+                                <th>Semana 3</th>
+                                <th>Semana 4</th>
+                                <th>Total Extras</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resumo-tbody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA LANÇAMENTOS -->
+        <div id="lancamentos" class="tab-content">
+            <h2>📝 Lançamentos de Horas</h2>
+            
+            <div class="form-section">
+                <h3>➕ Novo Lançamento</h3>
+                <form id="lancamento-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="funcionario">Funcionário:</label>
+                            <select id="funcionario" required>
+                                <option value="">Selecione...</option>
+                                <option value="RONALDO">RONALDO</option>
+                                <option value="JANAINA">JANAINA</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="data">Data:</label>
+                            <input type="date" id="data" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="semana">Semana:</label>
+                            <select id="semana" required>
+                                <option value="">Selecione...</option>
+                                <option value="1">Semana 1</option>
+                                <option value="2">Semana 2</option>
+                                <option value="3">Semana 3</option>
+                                <option value="4">Semana 4</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="entrada1">Entrada 1:</label>
+                            <input type="time" id="entrada1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="saida1">Saída 1:</label>
+                            <input type="time" id="saida1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="extra-entrada">Extra Entrada:</label>
+                            <input type="time" id="extra-entrada">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="extra-saida">Extra Saída:</label>
+                            <input type="time" id="extra-saida">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <button type="submit" class="btn btn-primary">💾 Salvar Lançamento</button>
+                        <button type="button" class="btn btn-success" onclick="exportarExcel()">📊 Exportar Excel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-container">
+                <table id="lancamentos-table">
+                    <thead>
+                        <tr>
+                            <th>Funcionário</th>
+                            <th>Data</th>
+                            <th>Dia</th>
+                            <th>Semana</th>
+                            <th>Entrada 1</th>
+                            <th>Saída 1</th>
+                            <th>Extra Entrada</th>
+                            <th>Extra Saída</th>
+                            <th>Horas Extras</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lancamentos-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ABA RELATÓRIOS -->
+        <div id="relatorios" class="tab-content">
+            <h2>📈 Relatórios</h2>
+            
+            <div class="report-filters">
+                <div class="form-group">
+                    <label for="filtro-funcionario">Funcionário:</label>
+                    <select id="filtro-funcionario">
+                        <option value="">Todos</option>
+                        <option value="RONALDO">RONALDO</option>
+                        <option value="JANAINA">JANAINA</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="filtro-semana">Semana:</label>
+                    <select id="filtro-semana">
+                        <option value="">Todas</option>
+                        <option value="1">Semana 1</option>
+                        <option value="2">Semana 2</option>
+                        <option value="3">Semana 3</option>
+                        <option value="4">Semana 4</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="filtro-mes">Mês:</label>
+                    <input type="month" id="filtro-mes">
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="aplicarFiltros()">🔍 Aplicar Filtros</button>
+                </div>
+            </div>
+
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h4>Total de Horas Extras</h4>
+                    <div class="value" id="total-extras">0:00</div>
+                </div>
+                
+                <div class="summary-card">
+                    <h4>Funcionários Ativos</h4>
+                    <div class="value" id="total-funcionarios">2</div>
+                </div>
+                
+                <div class="summary-card">
+                    <h4>Lançamentos do Mês</h4>
+                    <div class="value" id="total-lancamentos">0</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📊 Relatório Detalhado por Semana</h3>
+                <div class="table-container">
+                    <table id="relatorio-detalhado">
+                        <thead>
+                            <tr class="week-header">
+                                <th colspan="9">SEMANA 1</th>
+                            </tr>
+                            <tr>
+                                <th>Funcionário</th>
+                                <th>Segunda</th>
+                                <th>Terça</th>
+                                <th>Quarta</th>
+                                <th>Quinta</th>
+                                <th>Sexta</th>
+                                <th>Sábado</th>
+                                <th>Domingo</th>
+                                <th>Total Extras</th>
+                            </tr>
+                        </thead>
+                        <tbody id="relatorio-tbody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="export-section">
+                <h3>📤 Exportar Dados</h3>
+                <button class="btn btn-success" onclick="exportarCSV()">📄 Exportar CSV</button>
+                <button class="btn btn-primary" onclick="exportarExcel()">📊 Exportar Excel</button>
+                <button class="btn btn-danger" onclick="limparDados()">🗑️ Limpar Dados</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados globais
+        let lancamentos = JSON.parse(localStorage.getItem('lancamentos')) || [];
+        
+        // Dados de exemplo (replicando a planilha original)
+        if (lancamentos.length === 0) {
+            lancamentos = [
+                {
+                    id: 1,
+                    funcionario: 'RONALDO',
+                    data: '2024-01-08',
+                    semana: '1',
+                    entrada1: '08:00',
+                    saida1: '17:00',
+                    extraEntrada: '18:00',
+                    extraSaida: '20:00',
+                    horasExtras: '2:00'
+                },
+                {
+                    id: 2,
+                    funcionario: 'RONALDO',
+                    data: '2024-01-09',
+                    semana: '1',
+                    entrada1: '08:00',
+                    saida1: '17:00',
+                    extraEntrada: '18:00',
+                    extraSaida: '19:30',
+                    horasExtras: '1:30'
+                },
+                {
+                    id: 3,
+                    funcionario: 'JANAINA',
+                    data: '2024-01-08',
+                    semana: '1',
+                    entrada1: '09:00',
+                    saida1: '18:00',
+                    extraEntrada: '19:00',
+                    extraSaida: '21:00',
+                    horasExtras: '2:00'
+                }
+            ];
+            salvarDados();
+        }
+
+        // Funções de navegação
+        function showTab(tabName) {
+            // Esconder todas as abas
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remover classe active de todos os botões
+            document.querySelectorAll('.tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostrar aba selecionada
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Atualizar conteúdo da aba
+            if (tabName === 'painel') {
+                atualizarPainel();
+            } else if (tabName === 'lancamentos') {
+                atualizarLancamentos();
+            } else if (tabName === 'relatorios') {
+                atualizarRelatorios();
+            }
+        }
+
+        // Funções de cálculo
+        function calcularHorasExtras(extraEntrada, extraSaida) {
+            if (!extraEntrada || !extraSaida) return '0:00';
+            
+            const [horaE, minE] = extraEntrada.split(':').map(Number);
+            const [horaS, minS] = extraSaida.split(':').map(Number);
+            
+            const minutosEntrada = horaE * 60 + minE;
+            const minutosSaida = horaS * 60 + minS;
+            
+            let diferenca = minutosSaida - minutosEntrada;
+            if (diferenca < 0) diferenca += 24 * 60; // Próximo dia
+            
+            const horas = Math.floor(diferenca / 60);
+            const minutos = diferenca % 60;
+            
+            return `${horas}:${minutos.toString().padStart(2, '0')}`;
+        }
+
+        function formatarData(data) {
+            const date = new Date(data + 'T00:00:00');
+            const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+            return dias[date.getDay()];
+        }
+
+        function somarHoras(horas1, horas2) {
+            const [h1, m1] = horas1.split(':').map(Number);
+            const [h2, m2] = horas2.split(':').map(Number);
+            
+            const totalMinutos = (h1 * 60 + m1) + (h2 * 60 + m2);
+            const horas = Math.floor(totalMinutos / 60);
+            const minutos = totalMinutos % 60;
+            
+            return `${horas}:${minutos.toString().padStart(2, '0')}`;
+        }
+
+        // Funções de dados
+        function salvarDados() {
+            localStorage.setItem('lancamentos', JSON.stringify(lancamentos));
+        }
+
+        function adicionarLancamento(event) {
+            event.preventDefault();
+            
+            const funcionario = document.getElementById('funcionario').value;
+            const data = document.getElementById('data').value;
+            const semana = document.getElementById('semana').value;
+            const entrada1 = document.getElementById('entrada1').value;
+            const saida1 = document.getElementById('saida1').value;
+            const extraEntrada = document.getElementById('extra-entrada').value;
+            const extraSaida = document.getElementById('extra-saida').value;
+            
+            const horasExtras = calcularHorasExtras(extraEntrada, extraSaida);
+            
+            const novoLancamento = {
+                id: Date.now(),
+                funcionario,
+                data,
+                semana,
+                entrada1,
+                saida1,
+                extraEntrada,
+                extraSaida,
+                horasExtras
+            };
+            
+            lancamentos.push(novoLancamento);
+            salvarDados();
+            
+            // Limpar formulário
+            document.getElementById('lancamento-form').reset();
+            
+            // Atualizar tabela
+            atualizarLancamentos();
+            
+            // Mostrar mensagem de sucesso
+            mostrarAlerta('Lançamento adicionado com sucesso!', 'success');
+        }
+
+        function excluirLancamento(id) {
+            if (confirm('Tem certeza que deseja excluir este lançamento?')) {
+                lancamentos = lancamentos.filter(l => l.id !== id);
+                salvarDados();
+                atualizarLancamentos();
+                mostrarAlerta('Lançamento excluído com sucesso!', 'success');
+            }
+        }
+
+        function mostrarAlerta(mensagem, tipo) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${tipo}`;
+            alertDiv.textContent = mensagem;
+            
+            const container = document.querySelector('.tab-content.active');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+
+        // Funções de atualização das abas
+        function atualizarPainel() {
+            // Estatísticas de funcionários
+            const funcionarios = [...new Set(lancamentos.map(l => l.funcionario))];
+            const funcionariosStats = document.getElementById('funcionarios-stats');
+            funcionariosStats.innerHTML = funcionarios.map(f => 
+                `<div class="stat"><span>${f}</span><span>Ativo</span></div>`
+            ).join('');
+
+            // Semana atual
+            const semanaAtual = new Date().getWeek();
+            const semanaAtualStats = document.getElementById('semana-atual-stats');
+            semanaAtualStats.innerHTML = `
+                <div class="stat"><span>Semana</span><span>${semanaAtual}</span></div>
+                <div class="stat"><span>Lançamentos</span><span>${lancamentos.filter(l => l.semana == semanaAtual).length}</span></div>
+            `;
+
+            // Horas extras do mês
+            const extrasMes = calcularExtrasMes();
+            const extrasMesStats = document.getElementById('extras-mes-stats');
+            extrasMesStats.innerHTML = funcionarios.map(f => {
+                const totalFuncionario = extrasMes[f] || '0:00';
+                return `<div class="stat"><span>${f}</span><span>${totalFuncionario}</span></div>`;
+            }).join('');
+
+            // Resumo semanal
+            atualizarResumoSemanal();
+        }
+
+        function atualizarResumoSemanal() {
+            const tbody = document.getElementById('resumo-tbody');
+            const funcionarios = [...new Set(lancamentos.map(l => l.funcionario))];
+            
+            tbody.innerHTML = funcionarios.map(funcionario => {
+                const semanas = [1, 2, 3, 4].map(semana => {
+                    const lancamentosSemana = lancamentos.filter(l => 
+                        l.funcionario === funcionario && l.semana == semana
+                    );
+                    
+                    return lancamentosSemana.reduce((total, l) => 
+                        somarHoras(total, l.horasExtras), '0:00'
+                    );
+                });
+                
+                const totalExtras = semanas.reduce((total, horas) => 
+                    somarHoras(total, horas), '0:00'
+                );
+                
+                return `
+                    <tr>
+                        <td class="employee-header">${funcionario}</td>
+                        <td>${semanas[0]}</td>
+                        <td>${semanas[1]}</td>
+                        <td>${semanas[2]}</td>
+                        <td>${semanas[3]}</td>
+                        <td class="total-row">${totalExtras}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function atualizarLancamentos() {
+            const tbody = document.getElementById('lancamentos-tbody');
+            
+            tbody.innerHTML = lancamentos.map(lancamento => `
+                <tr>
+                    <td>${lancamento.funcionario}</td>
+                    <td>${new Date(lancamento.data + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+                    <td>${formatarData(lancamento.data)}</td>
+                    <td>Semana ${lancamento.semana}</td>
+                    <td>${lancamento.entrada1 || '-'}</td>
+                    <td>${lancamento.saida1 || '-'}</td>
+                    <td>${lancamento.extraEntrada || '-'}</td>
+                    <td>${lancamento.extraSaida || '-'}</td>
+                    <td><strong>${lancamento.horasExtras}</strong></td>
+                    <td>
+                        <button class="btn btn-danger" onclick="excluirLancamento(${lancamento.id})">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function atualizarRelatorios() {
+            // Atualizar cards de resumo
+            const totalExtras = calcularTotalExtras();
+            const funcionarios = [...new Set(lancamentos.map(l => l.funcionario))];
+            
+            document.getElementById('total-extras').textContent = totalExtras;
+            document.getElementById('total-funcionarios').textContent = funcionarios.length;
+            document.getElementById('total-lancamentos').textContent = lancamentos.length;
+            
+            // Atualizar relatório detalhado
+            atualizarRelatorioDetalhado();
+        }
+
+        function atualizarRelatorioDetalhado() {
+            const tbody = document.getElementById('relatorio-tbody');
+            const funcionarios = [...new Set(lancamentos.map(l => l.funcionario))];
+            
+            let html = '';
+            
+            for (let semana = 1; semana <= 4; semana++) {
+                html += `
+                    <tr class="week-header">
+                        <td colspan="9">SEMANA ${semana}</td>
+                    </tr>
+                `;
+                
+                funcionarios.forEach(funcionario => {
+                    const diasSemana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+                    const horasPorDia = diasSemana.map(dia => {
+                        const lancamento = lancamentos.find(l => 
+                            l.funcionario === funcionario && 
+                            l.semana == semana && 
+                            formatarData(l.data) === dia
+                        );
+                        return lancamento ? lancamento.horasExtras : '0:00';
+                    });
+                    
+                    const totalSemana = horasPorDia.reduce((total, horas) => 
+                        somarHoras(total, horas), '0:00'
+                    );
+                    
+                    html += `
+                        <tr>
+                            <td class="employee-header">${funcionario}</td>
+                            ${horasPorDia.map(h => `<td>${h}</td>`).join('')}
+                            <td class="total-row">${totalSemana}</td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            tbody.innerHTML = html;
+        }
+
+        function calcularTotalExtras() {
+            return lancamentos.reduce((total, l) => 
+                somarHoras(total, l.horasExtras), '0:00'
+            );
+        }
+
+        function calcularExtrasMes() {
+            const funcionarios = [...new Set(lancamentos.map(l => l.funcionario))];
+            const resultado = {};
+            
+            funcionarios.forEach(funcionario => {
+                resultado[funcionario] = lancamentos
+                    .filter(l => l.funcionario === funcionario)
+                    .reduce((total, l) => somarHoras(total, l.horasExtras), '0:00');
+            });
+            
+            return resultado;
+        }
+
+        // Funções de exportação
+        function exportarCSV() {
+            const csv = [
+                ['Funcionário', 'Data', 'Dia', 'Semana', 'Entrada 1', 'Saída 1', 'Extra Entrada', 'Extra Saída', 'Horas Extras'],
+                ...lancamentos.map(l => [
+                    l.funcionario,
+                    l.data,
+                    formatarData(l.data),
+                    `Semana ${l.semana}`,
+                    l.entrada1 || '',
+                    l.saida1 || '',
+                    l.extraEntrada || '',
+                    l.extraSaida || '',
+                    l.horasExtras
+                ])
+            ].map(row => row.join(',')).join('\n');
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'banco_horas.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function exportarExcel() {
+            // Simular exportação Excel (seria necessário uma biblioteca como SheetJS)
+            mostrarAlerta('Funcionalidade de exportação Excel em desenvolvimento. Use CSV por enquanto.', 'warning');
+        }
+
+        function limparDados() {
+            if (confirm('Tem certeza que deseja limpar todos os dados? Esta ação não pode ser desfeita.')) {
+                lancamentos = [];
+                salvarDados();
+                atualizarLancamentos();
+                atualizarPainel();
+                atualizarRelatorios();
+                mostrarAlerta('Dados limpos com sucesso!', 'success');
+            }
+        }
+
+        function aplicarFiltros() {
+            // Implementar filtros nos relatórios
+            mostrarAlerta('Filtros aplicados!', 'success');
+        }
+
+        // Extensão para calcular semana do ano
+        Date.prototype.getWeek = function() {
+            const date = new Date(this.getTime());
+            date.setHours(0, 0, 0, 0);
+            date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+            const week1 = new Date(date.getFullYear(), 0, 4);
+            return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+        };
+
+        // Event listeners
+        document.getElementById('lancamento-form').addEventListener('submit', adicionarLancamento);
+        document.getElementById('data').valueAsDate = new Date();
+
+        // Inicializar
+        atualizarPainel();
+        atualizarLancamentos();
+        atualizarRelatorios();
+    </script>
+</body>
+</html>

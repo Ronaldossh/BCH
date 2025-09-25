@@ -1,0 +1,185 @@
+{
+  "config": {
+    "version": "2.0.0",
+    "lastUpdate": "2025-01-24",
+    "theme": "dark",
+    "laserEffects": true,
+    "autoSave": true,
+    "language": "pt-BR"
+  },
+  "employees": [
+    {
+      "id": 1,
+      "name": "João Silva",
+      "position": "Desenvolvedor",
+      "department": "TI",
+      "workSchedule": {
+        "startTime": "08:00",
+        "endTime": "17:00",
+        "lunchBreak": 60,
+        "weeklyHours": 40
+      },
+      "records": [
+        {
+          "date": "2025-01-20",
+          "entry": "08:00",
+          "lunchOut": "12:00",
+          "lunchIn": "13:00",
+          "exit": "17:30",
+          "totalHours": 8.5,
+          "extraHours": 0.5,
+          "delay": 0,
+          "status": "complete"
+        },
+        {
+          "date": "2025-01-21",
+          "entry": "08:15",
+          "lunchOut": "12:00",
+          "lunchIn": "13:00",
+          "exit": "17:00",
+          "totalHours": 7.75,
+          "extraHours": 0,
+          "delay": 0.25,
+          "status": "complete"
+        }
+      ],
+      "summary": {
+        "totalWorkedHours": 16.25,
+        "totalExtraHours": 0.5,
+        "totalDelays": 0.25,
+        "averageDailyHours": 8.125,
+        "punctualityRate": 50
+      }
+    },
+    {
+      "id": 2,
+      "name": "Maria Santos",
+      "position": "Analista",
+      "department": "Financeiro",
+      "workSchedule": {
+        "startTime": "09:00",
+        "endTime": "18:00",
+        "lunchBreak": 60,
+        "weeklyHours": 40
+      },
+      "records": [
+        {
+          "date": "2025-01-20",
+          "entry": "09:00",
+          "lunchOut": "12:30",
+          "lunchIn": "13:30",
+          "exit": "18:00",
+          "totalHours": 8,
+          "extraHours": 0,
+          "delay": 0,
+          "status": "complete"
+        },
+        {
+          "date": "2025-01-21",
+          "entry": "08:45",
+          "lunchOut": "12:30",
+          "lunchIn": "13:30",
+          "exit": "18:15",
+          "totalHours": 8.5,
+          "extraHours": 0.5,
+          "delay": 0,
+          "status": "complete"
+        }
+      ],
+      "summary": {
+        "totalWorkedHours": 16.5,
+        "totalExtraHours": 0.5,
+        "totalDelays": 0,
+        "averageDailyHours": 8.25,
+        "punctualityRate": 100
+      }
+    }
+  ],
+  "departments": [
+    {
+      "id": 1,
+      "name": "TI",
+      "manager": "Carlos Tech",
+      "employeeCount": 5,
+      "totalHours": 200,
+      "averageExtraHours": 2.5
+    },
+    {
+      "id": 2,
+      "name": "Financeiro",
+      "manager": "Ana Finance",
+      "employeeCount": 3,
+      "totalHours": 120,
+      "averageExtraHours": 1.2
+    },
+    {
+      "id": 3,
+      "name": "RH",
+      "manager": "Pedro HR",
+      "employeeCount": 2,
+      "totalHours": 80,
+      "averageExtraHours": 0.5
+    }
+  ],
+  "reports": {
+    "weekly": {
+      "week": "2025-W03",
+      "totalEmployees": 10,
+      "totalHours": 400,
+      "totalExtraHours": 15,
+      "totalDelays": 2.5,
+      "averagePunctuality": 85,
+      "topPerformers": [
+        {
+          "employeeId": 2,
+          "name": "Maria Santos",
+          "punctualityRate": 100,
+          "extraHours": 0.5
+        }
+      ]
+    },
+    "monthly": {
+      "month": "2025-01",
+      "totalHours": 1600,
+      "totalExtraHours": 60,
+      "totalDelays": 10,
+      "averagePunctuality": 88,
+      "departmentPerformance": [
+        {
+          "department": "Financeiro",
+          "punctualityRate": 95,
+          "extraHoursRate": 5
+        },
+        {
+          "department": "TI",
+          "punctualityRate": 85,
+          "extraHoursRate": 8
+        },
+        {
+          "department": "RH",
+          "punctualityRate": 90,
+          "extraHoursRate": 3
+        }
+      ]
+    }
+  },
+  "settings": {
+    "workingDays": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+    "holidays": [
+      "2025-01-01",
+      "2025-04-21",
+      "2025-09-07",
+      "2025-12-25"
+    ],
+    "notifications": {
+      "delayAlert": true,
+      "extraHoursAlert": true,
+      "weeklyReport": true
+    },
+    "export": {
+      "format": "csv",
+      "includeCharts": true,
+      "autoBackup": true
+    }
+  }
+}
