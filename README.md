@@ -24,7 +24,7 @@ Sistema completo para controle de horas trabalhadas com cálculo automático de 
 - ✅ **Créditos do Desenvolvedor**: Ronaldo_Ssh
 
 ### 🎯 Sistema Automático
-- ✅ **Cálculo Automático**: Detecta horas extras antes das 8h e após 15h
+- ✅ **Cálculo Automático**: Detecta horas extras antes das 8h e após 17h
 - ✅ **Controle de Atrasos**: Identifica automaticamente atrasos após 8h
 - ✅ **Relatórios Semanais**: Totais de horas extras por semana e funcionário
 - ✅ **3 Abas Completas**: Painel, Lançamentos e Relatórios
@@ -52,8 +52,8 @@ Sistema completo para controle de horas trabalhadas com cálculo automático de 
 
 ## 🔧 Regras de Negócio
 
-- **Horário Padrão**: 8:00 às 15:00 (sem intervalo)
-- **Horas Extras**: Entrada antes das 8h ou saída após 15h
+- **Horário Padrão**: 8:00 às 17:00 (sem intervalo)
+- **Horas Extras**: Entrada antes das 8h ou saída após 17h
 - **Atrasos**: Entrada após 8h
 - **Cálculo Final**: (Extras Entrada + Extras Saída) - Atrasos
 
@@ -83,3 +83,5 @@ Sistema completo para controle de horas trabalhadas com cálculo automático de 
 ---
 
 **Desenvolvido para controle eficiente de banco de horas** 🚀
+
+**Desenvolvedor**: Ronaldo_Ssh
